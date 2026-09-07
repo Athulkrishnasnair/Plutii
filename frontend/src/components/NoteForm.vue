@@ -1,0 +1,95 @@
+<template>
+    <form @submit.prevent="submitForm">
+        <h2>{{ note ? "Edit note" : "Create note" }}</h2>
+
+        <label for="title">Note title</label>
+        <input type="text"
+        placeholder="Note title"
+        v-model="title"
+        id="title"
+        >
+
+        <label for="content">Write a note</label>
+        <textarea id="content"
+        placeholder="Write your note"
+        rows="6"
+        ></textarea>
+
+        <div class="actions">
+            <button type="submit">
+                {{ note ? "Update" : "Create"}}
+            </button>
+
+            <button type="button" v-if="note"
+            @click="$emit('cancel')"
+            >Cancel</button>
+        </div>
+    </form>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue';
+
+// Define a prop note
+const props = defineProps({
+    type: Object,
+    default: null
+})
+
+// Define Emits
+const emit = defineEmits(["save", "cancel"])
+
+// Reactive variables
+const title = ref('');
+const content = ref('');
+
+// When note changes
+watch(
+    () => props.note,
+    (note) => {
+        title.value = props?.title || "";
+        content.value = props?.content || "";
+    },
+    {immediate: true}
+);
+
+// Form submit
+function submitForm(){
+    
+    if (!title.value.trim() || !content.value.trim()){
+        return;
+    }
+
+    emit('save', 
+        {
+            title: title.value,
+            content: content.value
+        }
+    )
+}
+
+</script>
+
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+input,
+textarea {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+</style>

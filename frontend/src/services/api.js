@@ -1,5 +1,5 @@
 // Set URL
-const API_URL = '';
+const API_URL = 'http://localhost:5000/api';
 
 // Wrapper function for request
 async function req(endpoint, options = {}) {
