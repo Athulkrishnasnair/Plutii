@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 // Define props
 defineProps({
     note: {
