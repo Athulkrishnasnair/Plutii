@@ -22,16 +22,49 @@ def get_notes():
         for note in notes
     ])
 
+
+# Helper for validation
+def validate_note(data):
+
+    # data is a obj
+     if not data:
+         return "Invalid Note."
+
+     if "title" not in data or "content" not in data:
+         return "Title and content are required"
+
+     if not isinstance(data['title'], str):
+         return "Title must be text"
+
+     if not isinstance(data['content'], str):
+         return "content must be text"
+
+     if not data['title'].strip():
+         return "Title cannot be empty"
+
+     if not data['content'].strip():
+         return "Content cannot be empty"
+
+     if len(data["title"]) > 200:
+         return "Invalid title length"
+
+     return None
+
+
 # Post Method create notes
 @notes_bp.route("", methods=["POST"])
 def create_notes():
     data = request.get_json()
 
     # Validation
-    if not data or "title" not in data or "content" not in data:
-        return jsonify({
-            "error": "title and content are required"
-        }), 400
+    error = validate_note(data)
+
+    if error:
+        return jsonify(
+            {
+                "error": error
+            }
+        ), 400
 
 
     note = Note(
@@ -69,10 +102,14 @@ def update_note(note_id):
     note = db.get_or_404(Note, note_id)
     data = request.get_json()
 
-    if not data or "title" not in data or "content" not in data:
-        return jsonify({
-                "error": "title and content are required"
-            }), 400
+    error = validate_note(data)
+
+    if error:
+        return jsonify(
+            {
+                "error": error
+            }
+        ), 400
 
     # Update note
     note.title = data["title"]

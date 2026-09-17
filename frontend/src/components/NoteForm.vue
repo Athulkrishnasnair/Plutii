@@ -13,7 +13,10 @@
         <textarea id="content"
         placeholder="Write your note"
         rows="6"
+        v-model="content"
         ></textarea>
+
+        <p v-if="error" class="error">{{ error }}</p>
 
         <div class="actions">
             <button type="submit">
@@ -32,8 +35,11 @@ import { ref, watch } from 'vue';
 
 // Define a prop note
 const props = defineProps({
-    type: Object,
-    default: null
+    note: {
+        type: Object,
+        default: null
+    }
+   
 })
 
 // Define Emits
@@ -42,23 +48,34 @@ const emit = defineEmits(["save", "cancel"])
 // Reactive variables
 const title = ref('');
 const content = ref('');
+const error = ref('');
 
 // When note changes
 watch(
     () => props.note,
     (note) => {
-        title.value = props?.title || "";
-        content.value = props?.content || "";
+        title.value = note?.title || "";
+        content.value = note?.content || "";
     },
     {immediate: true}
 );
 
 // Form submit
 function submitForm(){
-    
-    if (!title.value.trim() || !content.value.trim()){
+    console.log('SUBMIT: ', title.value, content.value)
+
+    error.value = '';
+
+    if (!title.value.trim()) {
+        error.value = 'Title is required';
         return;
     }
+
+    if (!content.value.trim()) {
+        error.value = 'Content is required';
+        return;
+    }
+
 
     emit('save', 
         {

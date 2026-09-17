@@ -30,6 +30,32 @@ function openCreateForm() {
   selectedNote.value = null;
   showForm.value = true
 }
+
+// Save the note
+async function saveNote(noteData) {
+  // if im editing updateNote
+  // else createNote
+
+  if (selectedNote.value) {
+    await updateNote(selectedNote.value.id, noteData)
+  }
+  else {
+    await createNote(noteData)
+  }
+
+  // Updating state
+  await loadNotes();
+
+  selectedNote.value = null;
+  showForm.value = false;
+}
+
+// Delete a note
+async function handleDelete(id) {
+  await deleteNote(id);
+  await loadNotes();
+}
+
 // Run when app runs
 onMounted(loadNotes);
 </script>
@@ -44,8 +70,11 @@ onMounted(loadNotes);
     :key="note.id"
     @edit="openEditForm"
     :note="note"
+    @delete="handleDelete"
     ></NoteCard>
+
   </section>
+
   <div class="createNote">
     <button
     @click="openCreateForm"

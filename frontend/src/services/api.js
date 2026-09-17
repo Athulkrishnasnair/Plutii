@@ -15,14 +15,16 @@ async function req(endpoint, options = {}) {
         ...options
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
+    if (!res.ok) 
+    {
+        throw new Error(`Request failed: ${res.status}`)
     }
-
-    return data;
+    const data = await res.json();
+    return data
 }
+
+
+
 
 // Get Notes 
 export function getNotes(){
