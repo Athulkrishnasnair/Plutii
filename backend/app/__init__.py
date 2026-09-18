@@ -13,8 +13,8 @@ def create_app():
     # Connecting db to FLask app
     db.init_app(app)
 
-    # Import Note table
-    from .models import Note
+    # Import database Models
+    from .models import Note, User
 
     # Current working app model
     with app.app_context():
@@ -23,5 +23,9 @@ def create_app():
     # Register Notes route
     from .notes.routes import notes_bp
     app.register_blueprint(notes_bp)
+
+    # Register auth route
+    from .auth.routes import auth_bp
+    app.register_blueprint(auth_bp)
 
     return app
