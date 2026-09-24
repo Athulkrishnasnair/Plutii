@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from app.models import Note
 from app.extensions import db
 
@@ -8,9 +8,16 @@ notes_bp = Blueprint('notes', __name__, url_prefix="/api/notes")
 # Creating notes Endpoint route
 @notes_bp.route("", methods=["GET"])
 def get_notes():
+    # Collect session_id
+    user_id = session.get("user_id")
 
-    # Query the entire db for the notes or content 
-    notes = Note.query.all()
+    if not user_id:
+        return jsonify({
+            "error": "Not authenticated"
+        }), 401
+
+    # Filter db by session
+    notes = Note.query.filter_by(user_id=user_id).all()
 
     # Pythonic way of traversing list of dicts 
     return jsonify([
@@ -54,6 +61,13 @@ def validate_note(data):
 # Post Method create notes
 @notes_bp.route("", methods=["POST"])
 def create_notes():
+
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "error": "Not authenticated"
+        }), 401
+
     data = request.get_json()
 
     # Validation
@@ -69,9 +83,12 @@ def create_notes():
 
     note = Note(
         title = data["title"],
-        content = data["content"]
+        content = data["content"],
+        user_id=user_id
     )
 
+    
+    # For creation of a note im am creating the ownership 
     # Add note to db
 
     db.session.add(note)
@@ -88,18 +105,53 @@ def create_notes():
 @notes_bp.route("/<int:note_id>", methods=["GET"])
 def get_note(note_id):
 
-    note = db.get_or_404(Note, note_id)
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({
+            "error": "Not authenticated"
+        }), 401
+
+    # Gets the note
+    note = db.session.get(Note, note_id)
+    if not note:
+        return jsonify({
+            "error": "Note not found"
+        }), 404
+
+    # Check for users note session 
+    if note.user_id != user_id:
+        return jsonify({
+            "error": "Not authorised"
+        }), 403
+
     return jsonify({
         "id": note.id,
         "title": note.title,
         "content": note.content
     })
 
-# Replace notes with PUT
+# Replace/update notes with PUT
 @notes_bp.route("/<int:note_id>", methods=["PUT"])
 def update_note(note_id):
 
-    note = db.get_or_404(Note, note_id)
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "error": "Not authenticated"
+        }), 401
+
+    note = db.session.get(Note, note_id)
+    if not note:
+        return jsonify({
+            "error": "Note not found"
+        }), 404
+
+    if note.user_id != user_id:
+        return jsonify({
+            "error": "Not authorised"
+        }), 403
+
     data = request.get_json()
 
     error = validate_note(data)
@@ -127,10 +179,25 @@ def update_note(note_id):
 @notes_bp.route("/<int:note_id>", methods=["DELETE"])
 def delete_note(note_id):
 
-    note = db.get_or_404(Note, note_id)
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "error": "Not authenticated"
+        }), 401
+
+    note = db.session.get(Note, note_id)
+    if not note:
+        return jsonify({
+            "error": "Note not found"
+        }), 404
+
+    if note.user_id != user_id:
+        return jsonify({
+            "error": "Not authorised"
+        }), 403
 
     db.session.delete(note)
     db.session.commit()
     return jsonify({
-        "message": "Note deleted sucessfully"
+        "message": "Note deleted successfully"
     })

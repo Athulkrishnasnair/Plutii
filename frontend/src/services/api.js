@@ -6,8 +6,8 @@ async function req(endpoint, options = {}) {
     
     // Get a response
     const res = await fetch(`${API_URL}${endpoint}`, {
+        credentials: "include",
         headers: {
-            
             // Default header
             "Content-Type": 'application/json',
             ...options.headers
