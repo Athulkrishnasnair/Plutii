@@ -6,13 +6,13 @@ async function req(endpoint, options = {}) {
     
     // Get a response
     const res = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
         credentials: "include",
         headers: {
             // Default header
             "Content-Type": 'application/json',
             ...options.headers
         },
-        ...options
     });
 
     if (!res.ok) 
@@ -57,4 +57,16 @@ export function deleteNote(id){
     return req(`/notes/${id}`, {
         method: "DELETE"
     })
+}
+
+// Analyze a developer error
+export function analyzeError(error, code = "", context = "") {
+    return req("/analysis/error", {
+        method: "POST",
+        body: JSON.stringify({
+            error,
+            code,
+            context
+        })
+    });
 }

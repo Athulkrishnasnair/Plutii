@@ -31,6 +31,10 @@ def create_app():
     from .notes.routes import notes_bp
     app.register_blueprint(notes_bp)
 
+    # Register Analysis route
+    from .analysis.routes import analysis_bp
+    app.register_blueprint(analysis_bp)
+
     # Register auth route
     from .auth.routes import auth_bp
     app.register_blueprint(auth_bp)

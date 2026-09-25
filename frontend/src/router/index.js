@@ -21,6 +21,11 @@ const router = createRouter({
         {
             path: "/dashboard",
             component: () => import("../views/DashboardView.vue")
+        },
+        {
+            path: "/error-lens",
+            name: "error-lens",
+            component: () => import("../views/ErrorLensView.vue")
         }
     ]
 });
