@@ -5,3 +5,13 @@ __pycache__/
 .env
 node_modules/
 dist/
+# Local authentication/session data
+cookies.txt
+backend/cookies.txt
+*.Identifier
+
+# Local/demo archives
+backend/*.zip
+
+# Temporary accidental files
+tore .
