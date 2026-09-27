@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, computed } from 'vue';
 import LandingNavbar from '../components/LandingNavbar.vue';
 import { useAuth } from '../composables/useAuth';
+import { ArrowRight, CircleAlert, FileText, FolderTree, Route } from '@lucide/vue';
 import logo from '../assets/logo.png';
 
 const { isAuthenticated } = useAuth();
@@ -14,6 +15,12 @@ const errorLensTarget = computed(() =>
 );
 const docsLensTarget = computed(() =>
     authed.value ? '/docs-lens' : '/login?redirect=/docs-lens'
+);
+const planLensTarget = computed(() =>
+    authed.value ? '/plan-lens' : '/login?redirect=/plan-lens'
+);
+const codebaseLensTarget = computed(() =>
+    authed.value ? '/codebase-lens' : '/login?redirect=/codebase-lens'
 );
 const primaryCTA = computed(() =>
     authed.value ? '/dashboard' : '/register'
@@ -61,14 +68,12 @@ onUnmounted(() => {
                         <p class="l-eyebrow">Developer tooling</p>
 
                         <h1 id="intro-heading" class="l-intro__headline">
-                            Your errors already<br>
-                            contain the answer.
+                            Find the signal. Know what comes next.
                         </h1>
 
                         <p class="l-intro__sub">
-                            ArrowLens reads the noise in error messages and documentation
-                            and surfaces what matters — the problem, the likely cause,
-                            a concrete fix, and the steps to verify it's gone.
+                            ArrowLens turns errors, documentation, rough plans, and repositories
+                            into clear explanations and concrete next steps.
                         </p>
 
                         <div class="l-intro__actions">
@@ -384,73 +389,111 @@ change.</code></pre>
                 </div>
             </section>
 
-            <!-- ── 05 THE LENS CONCEPT ─────────────────────────── -->
-            <section class="l-section l-concept" aria-labelledby="concept-heading">
+            <!-- ── 05 FOUR LENSES ──────────────────────────────── -->
+            <section class="l-section l-lens-index" aria-labelledby="lenses-heading">
                 <div class="l-inner">
                     <div class="l-section__num" aria-hidden="true">05</div>
-
-                    <div class="l-concept__body l-reveal">
-                        <h2 id="concept-heading" class="l-concept__headline">
-                            A lens doesn't change what you see.<br>
-                            It changes <em>how clearly</em> you see it.
-                        </h2>
-                        <p class="l-concept__copy">
-                            Errors and documentation aren't broken. They contain
-                            the information you need. ArrowLens extracts the signal —
-                            the specific field or clause that answers your question —
-                            so you spend less time parsing and more time building.
+                    <div class="l-lens-index__header l-reveal">
+                        <p class="l-eyebrow">One developer workspace</p>
+                        <h2 id="lenses-heading" class="l-section__heading">Four lenses. One clearer workflow.</h2>
+                        <p class="l-section__sub">
+                            Move from an error or a question to the next concrete step, then inspect how the repository fits together.
                         </p>
                     </div>
 
-                    <!-- Inline SVG diagram: noise → lens → signal -->
-                    <!-- Decorative visual elements are aria-hidden; the "signal" field names are exposed as text -->
-                    <div class="l-concept__diagram l-reveal" aria-hidden="true">
-                        <div class="l-concept__stage">
-                            <div class="l-concept__stage-label">noise</div>
-                            <div class="l-concept__noise">
-                                <span class="l-noise__line l-noise__line--lg"></span>
-                                <span class="l-noise__line l-noise__line--sm"></span>
-                                <span class="l-noise__line l-noise__line--md"></span>
-                                <span class="l-noise__line l-noise__line--sm"></span>
-                                <span class="l-noise__line l-noise__line--lg"></span>
-                                <span class="l-noise__line l-noise__line--xs"></span>
-                                <span class="l-noise__line l-noise__line--md"></span>
+                    <div class="l-lens-index__grid l-reveal">
+                        <router-link :to="errorLensTarget" class="l-lens-card">
+                            <CircleAlert class="l-lens-card__icon" :size="20" :stroke-width="1.7" aria-hidden="true" />
+                            <span class="l-lens-card__name">Error Lens</span>
+                            <span class="l-lens-card__description">Turn noisy errors into actionable fixes.</span>
+                            <ArrowRight class="l-lens-card__arrow" :size="16" aria-hidden="true" />
+                        </router-link>
+                        <router-link :to="docsLensTarget" class="l-lens-card">
+                            <FileText class="l-lens-card__icon" :size="20" :stroke-width="1.7" aria-hidden="true" />
+                            <span class="l-lens-card__name">Docs Lens</span>
+                            <span class="l-lens-card__description">Turn dense documentation into useful understanding.</span>
+                            <ArrowRight class="l-lens-card__arrow" :size="16" aria-hidden="true" />
+                        </router-link>
+                        <router-link :to="planLensTarget" class="l-lens-card">
+                            <Route class="l-lens-card__icon" :size="20" :stroke-width="1.7" aria-hidden="true" />
+                            <span class="l-lens-card__name">Plan Lens</span>
+                            <span class="l-lens-card__description">Turn rough ideas into implementation plans.</span>
+                            <ArrowRight class="l-lens-card__arrow" :size="16" aria-hidden="true" />
+                        </router-link>
+                        <router-link :to="codebaseLensTarget" class="l-lens-card">
+                            <FolderTree class="l-lens-card__icon" :size="20" :stroke-width="1.7" aria-hidden="true" />
+                            <span class="l-lens-card__name">Codebase Lens</span>
+                            <span class="l-lens-card__description">Understand a repository and how its pieces connect.</span>
+                            <ArrowRight class="l-lens-card__arrow" :size="16" aria-hidden="true" />
+                        </router-link>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── 06 THE LENS CONCEPT ─────────────────────────── -->
+            <section class="l-section l-concept" aria-labelledby="concept-heading">
+                <div class="l-inner l-concept__layout">
+                    <div class="l-concept__copy-column">
+                        <div class="l-section__num" aria-hidden="true">06</div>
+                        <div class="l-concept__body l-reveal">
+                            <p class="l-eyebrow">From noise to signal</p>
+                            <h2 id="concept-heading" class="l-concept__headline">
+                                A lens doesn't change what you see.<br>
+                                It changes <em>how clearly</em> you see it.
+                            </h2>
+                            <p class="l-concept__copy">
+                                Errors and documentation aren't broken. They contain
+                                the information you need. ArrowLens extracts the signal —
+                                the specific field or clause that answers your question —
+                                so you spend less time parsing and more time building.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="l-concept__visual l-reveal">
+                        <div class="l-concept__diagram" aria-hidden="true">
+                            <div class="l-concept__stage">
+                                <div class="l-concept__stage-label">noise</div>
+                                <div class="l-concept__noise">
+                                    <span class="l-noise__line l-noise__line--lg"></span>
+                                    <span class="l-noise__line l-noise__line--sm"></span>
+                                    <span class="l-noise__line l-noise__line--md"></span>
+                                    <span class="l-noise__line l-noise__line--sm"></span>
+                                    <span class="l-noise__line l-noise__line--lg"></span>
+                                    <span class="l-noise__line l-noise__line--xs"></span>
+                                    <span class="l-noise__line l-noise__line--md"></span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="l-concept__flow-arrow" aria-hidden="true">
-                            <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-                                <path d="M0 8h36M29 2l7 6-7 6" stroke="var(--l-num)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+                            <div class="l-concept__flow-arrow" aria-hidden="true">
+                                <ArrowRight :size="22" :stroke-width="1.5" />
+                            </div>
 
-                        <!-- Lens -->
-                        <div class="l-concept__lens" aria-hidden="true">
-                            <svg class="l-concept__lens-svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
-                                <circle cx="32" cy="32" r="28" stroke="var(--accent)" stroke-width="1.5"/>
-                                <ellipse cx="32" cy="32" rx="12" ry="28" stroke="var(--accent)" stroke-width="1" opacity="0.35"/>
-                                <line x1="4" y1="32" x2="60" y2="32" stroke="var(--accent)" stroke-width="0.75" opacity="0.25"/>
-                            </svg>
-                            <span class="l-concept__lens-label">ArrowLens</span>
-                        </div>
+                            <div class="l-concept__lens">
+                                <svg class="l-concept__lens-svg" width="76" height="76" viewBox="0 0 64 64" fill="none">
+                                    <circle cx="32" cy="32" r="28" stroke="var(--accent)" stroke-width="1.5"/>
+                                    <ellipse cx="32" cy="32" rx="12" ry="28" stroke="var(--accent)" stroke-width="1" opacity="0.35"/>
+                                    <line x1="4" y1="32" x2="60" y2="32" stroke="var(--accent)" stroke-width="0.75" opacity="0.25"/>
+                                </svg>
+                                <span class="l-concept__lens-label">ArrowLens</span>
+                            </div>
 
-                        <div class="l-concept__flow-arrow" aria-hidden="true">
-                            <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-                                <path d="M0 8h36M29 2l7 6-7 6" stroke="var(--l-num)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+                            <div class="l-concept__flow-arrow" aria-hidden="true">
+                                <ArrowRight :size="22" :stroke-width="1.5" />
+                            </div>
 
-                        <div class="l-concept__stage">
-                            <div class="l-concept__stage-label">signal</div>
-                            <div class="l-concept__signal">
-                                <span class="l-signal__field">Problem</span>
-                                <span class="l-signal__field">Likely cause</span>
-                                <span class="l-signal__field">Suggested fix</span>
-                                <span class="l-signal__field">Verification</span>
+                            <div class="l-concept__stage l-concept__stage--signal">
+                                <div class="l-concept__stage-label">signal / output</div>
+                                <div class="l-concept__signal">
+                                    <span class="l-signal__field">Problem</span>
+                                    <span class="l-signal__field">Likely cause</span>
+                                    <span class="l-signal__field">Suggested fix</span>
+                                    <span class="l-signal__field">Verification</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Accessible equivalent of the diagram for screen readers -->
+
                     <p class="l-visually-hidden">
                         The ArrowLens process: raw error or documentation noise passes through
                         the ArrowLens analysis engine and produces four structured output fields —
@@ -459,18 +502,18 @@ change.</code></pre>
                 </div>
             </section>
 
-            <!-- ── 06 WORKS WHERE YOU WORK ─────────────────────── -->
+            <!-- ── 07 WORKS WHERE YOU WORK ─────────────────────── -->
             <section class="l-section l-works" aria-labelledby="works-heading">
                 <div class="l-inner">
-                    <div class="l-section__num" aria-hidden="true">06</div>
+                    <div class="l-section__num" aria-hidden="true">07</div>
 
                     <div class="l-works__header l-reveal">
                         <h2 id="works-heading" class="l-section__heading">
                             The tool, not the pitch.
                         </h2>
                         <p class="l-section__sub">
-                            Both lenses share the same workspace layout —
-                            input on the left, structured analysis on the right.
+                            Every lens shares one workspace language —
+                            focused input, structured results, and useful next steps.
                             No dashboards to configure. No settings to wrestle with.
                         </p>
                     </div>
@@ -555,10 +598,10 @@ change.</code></pre>
                 </div>
             </section>
 
-            <!-- ── 07 HOW WE THINK ABOUT QUALITY ──────────────── -->
+            <!-- ── 08 HOW WE THINK ABOUT QUALITY ──────────────── -->
             <section class="l-section l-quality" aria-labelledby="quality-heading">
                 <div class="l-inner">
-                    <div class="l-section__num" aria-hidden="true">07</div>
+                    <div class="l-section__num" aria-hidden="true">08</div>
 
                     <h2 id="quality-heading" class="l-section__heading l-reveal">
                         How we think about quality.
@@ -610,15 +653,15 @@ change.</code></pre>
                 </div>
             </section>
 
-            <!-- ── 08 FINAL CTA ────────────────────────────────── -->
+            <!-- ── 09 FINAL CTA ────────────────────────────────── -->
             <section class="l-section l-cta" aria-labelledby="cta-heading">
                 <div class="l-inner">
                     <div class="l-cta__body l-reveal">
                         <h2 id="cta-heading" class="l-cta__headline">
-                            Start reading your errors differently.
+                            Make the next step clearer.
                         </h2>
                         <p class="l-cta__sub">
-                            Free to use. No configuration required.
+                            Four focused lenses for the work developers do every day.
                         </p>
                         <div class="l-cta__actions">
                             <router-link :to="primaryCTA" class="l-btn l-btn--primary l-btn--lg">
@@ -689,6 +732,86 @@ change.</code></pre>
     background: var(--l-surface);
 }
 
+.l-lens-index {
+    background: var(--l-surface);
+}
+
+.l-lens-index__header {
+    max-width: 680px;
+    margin-bottom: 32px;
+}
+
+.l-lens-index__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.l-lens-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-content: start;
+    column-gap: 12px;
+    row-gap: 8px;
+    min-width: 0;
+    min-height: 160px;
+    padding: 20px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: border-color var(--duration-fast), transform var(--duration-fast), background var(--duration-fast);
+}
+
+.l-lens-card:hover {
+    color: var(--text-h);
+    background: var(--surface);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.l-lens-card:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 3px;
+}
+
+.l-lens-card__icon {
+    grid-row: span 2;
+    color: var(--accent);
+}
+
+.l-lens-card__name {
+    align-self: center;
+    color: var(--text-h);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.l-lens-card__description {
+    grid-column: 1 / -1;
+    max-width: 28ch;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.l-lens-card__arrow {
+    position: absolute;
+    right: 18px;
+    top: 20px;
+    color: var(--text-muted);
+    transition: transform var(--duration-fast), color var(--duration-fast);
+}
+
+.l-lens-card:hover .l-lens-card__arrow {
+    color: var(--accent);
+    transform: translateX(3px);
+}
+
 /* ── Section numbering ───────────────────────────────── */
 
 .l-section__num {
@@ -753,7 +876,8 @@ change.</code></pre>
     font-size: calc((14px) * var(--accessibility-text-scale, 1));
     font-weight: 500;
     text-decoration: none;
-    border-radius: 6px;
+    min-height: 40px;
+    border-radius: var(--radius-md);
     padding: 9px 16px;
     border: none;
     cursor: pointer;
@@ -769,6 +893,7 @@ change.</code></pre>
 .l-btn--primary {
     background: var(--text-h);
     color: var(--bg);
+    border: 1px solid var(--text-h);
 }
 
 .l-btn--primary:hover .l-btn__arrow {
@@ -780,7 +905,8 @@ change.</code></pre>
 }
 
 :root[data-theme="dark"] .l-btn--primary:hover {
-    background: #1e1a2e;
+    background: var(--accent);
+    border-color: var(--accent);
 }
 
 .l-btn__arrow {
@@ -812,6 +938,15 @@ change.</code></pre>
 .l-btn:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
+}
+
+.l-btn:active {
+    transform: translateY(1px);
+}
+
+.l-btn[aria-disabled="true"] {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 /* ── 01 Intro ────────────────────────────────────────── */
@@ -1115,11 +1250,22 @@ change.</code></pre>
     font-size: inherit;
 }
 
-/* ── 05 Lens concept ─────────────────────────────────── */
+/* ── 06 Lens concept ─────────────────────────────────── */
+
+.l-concept__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(32px, 5vw, 72px);
+}
+
+.l-concept__copy-column,
+.l-concept__visual {
+    min-width: 0;
+}
 
 .l-concept__body {
-    max-width: 680px;
-    margin-bottom: 64px;
+    max-width: 580px;
 }
 
 .l-concept__headline {
@@ -1141,14 +1287,21 @@ change.</code></pre>
     font-size: calc((16px) * var(--accessibility-text-scale, 1));
     line-height: 1.7;
     color: var(--text);
-    max-width: 560px;
+    max-width: 500px;
+}
+
+.l-concept__visual {
+    padding: clamp(24px, 3.5vw, 44px);
+    background: var(--surface);
+    border-block: 1px solid var(--border-strong);
 }
 
 .l-concept__diagram {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) 24px 84px 24px minmax(0, 1.1fr);
     align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
+    gap: clamp(10px, 1.4vw, 20px);
+    width: 100%;
 }
 
 .l-concept__stage {
@@ -1156,7 +1309,8 @@ change.</code></pre>
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    min-width: 140px;
+    width: 100%;
+    min-width: 0;
 }
 
 .l-concept__stage-label {
@@ -1188,6 +1342,8 @@ change.</code></pre>
 .l-concept__flow-arrow {
     opacity: 0.5;
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
 }
 
 .l-concept__lens {
@@ -1209,6 +1365,7 @@ change.</code></pre>
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
 }
 
 .l-signal__field {
@@ -1220,7 +1377,8 @@ change.</code></pre>
     padding: 4px 10px;
     font-family: var(--mono);
     display: block;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* ── 06 Works — mockups ──────────────────────────────── */
@@ -1518,6 +1676,10 @@ change.</code></pre>
         grid-template-columns: 1fr;
     }
 
+    .l-lens-index__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .l-quality__item:nth-child(odd) {
         padding-right: 0;
         border-right: none;
@@ -1540,7 +1702,13 @@ change.</code></pre>
     }
 
     .l-concept__diagram {
-        gap: 16px;
+        grid-template-columns: minmax(0, 0.9fr) 20px 68px 20px minmax(0, 1.1fr);
+        gap: 10px;
+    }
+
+    .l-concept__layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
     }
 }
 
@@ -1554,7 +1722,7 @@ change.</code></pre>
     }
 
     .l-intro__headline {
-        font-size: calc((36px) * var(--accessibility-text-scale, 1));
+        font-size: calc((32px) * var(--accessibility-text-scale, 1));
     }
 
     .l-intro__sub {
@@ -1567,18 +1735,35 @@ change.</code></pre>
     }
 
     .l-concept__diagram {
-        flex-direction: column;
-        align-items: flex-start;
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: stretch;
+        gap: 14px;
+    }
+
+    .l-concept__visual {
+        padding: 20px 16px;
     }
 
     .l-concept__flow-arrow {
         transform: rotate(90deg);
-        margin-left: 64px;
+        justify-self: center;
     }
 
     .l-cta__actions {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .l-lens-index__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .l-lens-card {
+        min-height: 132px;
+    }
+
+    .l-intro__headline {
+        font-size: calc((30px) * var(--accessibility-text-scale, 1));
     }
 }
 

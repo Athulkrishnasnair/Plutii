@@ -163,7 +163,7 @@ async function copyForAi() {
                                         v-model="error"
                                         class="al-textarea al-textarea--mono"
                                         placeholder="Paste error output, exception traceback, or terminal log…"
-                                        rows="6"
+                                        rows="4"
                                         required
                                         aria-required="true"
                                     ></textarea>
@@ -179,7 +179,7 @@ async function copyForAi() {
                                         v-model="code"
                                         class="al-textarea al-textarea--mono"
                                         placeholder="Paste the function or file snippet where the error occurred…"
-                                        rows="5"
+                                        rows="3"
                                     ></textarea>
                                 </div>
 
@@ -267,35 +267,45 @@ async function copyForAi() {
                             </p>
                         </div>
 
-                        <!-- Structured Results Hierarchy -->
-                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Error analysis result">
+                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Error analysis summary">
                             <div class="al-result__section">
-                                <span class="al-result__label">Problem</span>
+                                <span class="al-result__label">SUMMARY</span>
                                 <MarkdownRenderer :content="result.problem" class="al-result__value" />
                             </div>
-
                             <div class="al-result__section">
                                 <span class="al-result__label">Likely Cause</span>
                                 <MarkdownRenderer :content="result.cause" class="al-result__value" />
-                            </div>
-
-                            <div class="al-result__section">
-                                <span class="al-result__label">Suggested Fix</span>
-                                <MarkdownRenderer :content="result.fix" class="al-result__value" />
-                            </div>
-
-                            <div class="al-result__section">
-                                <span class="al-result__label">Verification Checklist</span>
-                                <ul class="al-result__list">
-                                    <li v-for="(step, idx) in result.verification" :key="idx">
-                                        <MarkdownRenderer :content="step" inline />
-                                    </li>
-                                </ul>
                             </div>
                         </div>
                     </section>
 
                 </div>
+
+                <section v-if="result" class="al-lens-details" aria-labelledby="error-details-heading">
+                    <h2 id="error-details-heading" class="al-lens-details__heading">Details</h2>
+                    <div class="al-lens-panel al-lens-artifact al-result" role="region" aria-label="Full error analysis">
+                        <div class="al-result__section">
+                            <span class="al-result__label">Problem</span>
+                            <MarkdownRenderer :content="result.problem" class="al-result__value" />
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Likely Cause</span>
+                            <MarkdownRenderer :content="result.cause" class="al-result__value" />
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Suggested Fix</span>
+                            <MarkdownRenderer :content="result.fix" class="al-result__value" />
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Verification Checklist</span>
+                            <ul class="al-result__list">
+                                <li v-for="(step, idx) in result.verification" :key="idx">
+                                    <MarkdownRenderer :content="step" inline />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
 
             </div>
         </main>

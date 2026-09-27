@@ -513,11 +513,12 @@ onMounted(() => {
 /* ── 4 Unified Lens Cards Grid ───────────────────────────────── */
 .db-lenses-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-5);
 }
 
 .db-lens-card {
+    min-width: 0;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -649,6 +650,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-width: 0;
     padding: var(--space-4) var(--space-5);
     background: var(--surface);
     border: 1px solid var(--border);
@@ -773,7 +775,7 @@ onMounted(() => {
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1100px) {
     .db-lenses-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -793,6 +795,18 @@ onMounted(() => {
     }
     .db-activity-item__link {
         gap: var(--space-2);
+    }
+    .db-section__header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+    .db-activity-item__query {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .db-activity-item__date {
+        overflow-wrap: anywhere;
     }
 }
 </style>

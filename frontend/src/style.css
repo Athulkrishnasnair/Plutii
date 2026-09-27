@@ -351,15 +351,19 @@ pre code {
 
 /* ── Focus Mode ───────────────────────────────────────────────── */
 .focus-mode {
-  --focus-width: 1100px;
+  --focus-width: 960px;
 }
 
 .focus-mode .al-app-main {
   width: 100%;
   max-width: var(--focus-width) !important;
   margin-inline: auto !important;
-  padding: 76px var(--space-8) var(--space-10);
+  padding: var(--space-8) var(--space-8) var(--space-10);
   box-sizing: border-box;
+}
+
+.focus-mode .al-mobile-header {
+  display: flex !important;
 }
 
 .focus-mode .al-decor-element,
@@ -376,14 +380,15 @@ pre code {
 }
 
 .focus-mode .al-app-shell {
-  padding-left: 0 !important;
+  display: block;
+    --focus-width: 960px;
 }
 
 .focus-mode .al-sidebar {
   transform: translateX(-100%) !important;
 }
 
-.focus-mode .al-sidebar--mobile-open {
+    padding: var(--space-8) var(--space-8) var(--space-10);
   transform: translateX(0) !important;
 }
 
@@ -418,7 +423,7 @@ pre code {
 .high-contrast {
   --bg: #FFFFFF;
   --surface: #FFFFFF;
-  --surface-alt: #F1F5F9;
+      padding: var(--space-5) var(--space-4) var(--space-8);
   --surface-active: #E2E8F0;
   --text-h: #000000;
   --text: #050505;
@@ -509,22 +514,28 @@ pre code {
   width: 100%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .al-app-shell {
     padding-left: var(--sidebar-w);
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .al-app-shell {
     flex-direction: column;
     padding-left: 0;
   }
   .al-app-main {
+    padding: var(--space-6) var(--space-8);
+  }
+}
+
+@media (max-width: 767px) {
+  .al-app-main {
     padding: var(--space-5) var(--space-4);
   }
   .focus-mode .al-app-main {
-    padding: 64px var(--space-4) var(--space-8);
+    padding: var(--space-5) var(--space-4) var(--space-8);
   }
 }
 
@@ -582,6 +593,7 @@ pre code {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  min-height: 40px;
   font-family: var(--sans);
   font-size: 0.875rem;
   font-weight: 550;
@@ -605,6 +617,10 @@ pre code {
   opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.al-btn:active {
+  transform: translateY(0);
 }
 
 /* Primary Button (Tactile Ink / Crisp Inverse) */
@@ -685,6 +701,7 @@ pre code {
 
 /* Button Sizes */
 .al-btn--sm {
+  min-height: 32px;
   font-size: 0.8rem;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
@@ -804,8 +821,11 @@ pre code {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-6);
-  align-items: stretch;
   min-width: 0;
+}
+
+.al-lens-workspace {
+  align-items: start;
 }
 
 .al-workspace--single {
@@ -827,11 +847,38 @@ pre code {
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
-  /* Flex column so panels stretch equally while bodies expand */
+  /* Keep panel content aligned consistently across workspace surfaces. */
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 520px;
+}
+
+.al-lens-workspace .al-lens-panel,
+.al-lens-details .al-lens-panel {
+  min-height: 0;
+}
+
+.al-lens-workspace .al-textarea {
+  min-height: 96px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.al-lens-details {
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-strong);
+}
+
+.al-lens-details__heading {
+  margin-bottom: var(--space-4);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .al-workspace__panel-header,

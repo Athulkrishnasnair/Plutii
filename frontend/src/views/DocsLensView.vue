@@ -205,8 +205,8 @@ async function copyForAi() {
                             </div>
 
                             <!-- Step 2: Documentation Editor Area -->
-                            <form @submit.prevent="handleAnalyze" novalidate style="display: flex; flex-direction: column; flex: 1">
-                                <div class="al-form-group" style="flex: 1; display: flex; flex-direction: column">
+                            <form @submit.prevent="handleAnalyze" novalidate>
+                                <div class="al-form-group">
                                     <label for="dl-docs" class="al-label">
                                         <span>Documentation Content (Editable)</span>
                                         <span class="field-required">*</span>
@@ -216,10 +216,9 @@ async function copyForAi() {
                                         v-model="content"
                                         class="al-textarea"
                                         placeholder="Paste library reference, API specification, or migration guide here…"
-                                        rows="10"
+                                        rows="6"
                                         required
                                         aria-required="true"
-                                        style="flex: 1; min-height: 180px"
                                     ></textarea>
                                 </div>
 
@@ -293,39 +292,44 @@ async function copyForAi() {
                             </p>
                         </div>
 
-                        <!-- Structured Results Hierarchy -->
-                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Documentation analysis result">
+                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Documentation analysis summary">
                             <div class="al-result__section">
-                                <span class="al-result__label">Summary</span>
+                                <span class="al-result__label">SUMMARY</span>
                                 <MarkdownRenderer :content="result.summary" class="al-result__value" />
-                            </div>
-
-                            <div class="al-result__section">
-                                <span class="al-result__label">Key Concepts</span>
-                                <ul class="al-result__list">
-                                    <li v-for="(concept, idx) in result.key_concepts" :key="idx">
-                                        <MarkdownRenderer :content="concept" inline />
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="al-result__section">
-                                <span class="al-result__label">Working Example</span>
-                                <CodeBlock :code="result.example" lang="python" />
-                            </div>
-
-                            <div class="al-result__section">
-                                <span class="al-result__label">Common Mistake to Avoid</span>
-                                <div class="al-callout al-callout--warning">
-                                    <MarkdownRenderer :content="result.common_mistake" class="al-result__value" />
-                                </div>
                             </div>
                         </div>
                     </section>
 
                 </div>
 
-            </div>
+                <section v-if="result" class="al-lens-details" aria-labelledby="docs-details-heading">
+                    <h2 id="docs-details-heading" class="al-lens-details__heading">Details</h2>
+                    <div class="al-lens-panel al-lens-artifact al-result" role="region" aria-label="Full documentation analysis">
+                        <div class="al-result__section">
+                            <span class="al-result__label">Summary</span>
+                            <MarkdownRenderer :content="result.summary" class="al-result__value" />
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Key Concepts</span>
+                            <ul class="al-result__list">
+                                <li v-for="(concept, idx) in result.key_concepts" :key="idx">
+                                    <MarkdownRenderer :content="concept" inline />
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Working Example</span>
+                            <CodeBlock :code="result.example" lang="python" />
+                        </div>
+                        <div class="al-result__section">
+                            <span class="al-result__label">Common Mistake to Avoid</span>
+                            <div class="al-callout al-callout--warning">
+                                <MarkdownRenderer :content="result.common_mistake" class="al-result__value" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                    </div>
         </main>
     </div>
 </template>

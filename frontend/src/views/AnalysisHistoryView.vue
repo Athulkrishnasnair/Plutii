@@ -317,6 +317,8 @@ onMounted(loadAnalysis);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
     margin-bottom: var(--space-6);
 }
 
@@ -326,6 +328,8 @@ onMounted(loadAnalysis);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     max-width: 880px;
+    width: 100%;
+    min-width: 0;
 }
 
 .history-code-block {
@@ -384,10 +388,30 @@ onMounted(loadAnalysis);
     margin: 0 0 var(--space-2);
 }
 
+.history-step__content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .history-deps {
     margin-top: var(--space-2);
     font-family: var(--mono);
     font-size: 0.725rem;
     color: var(--text-muted);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+    .history-nav-row > * {
+        max-width: 100%;
+    }
+
+    .history-result-card .al-result__section {
+        padding-inline: var(--space-4);
+    }
+
+    .history-step {
+        gap: var(--space-3);
+    }
 }
 </style>

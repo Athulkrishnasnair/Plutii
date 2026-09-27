@@ -72,22 +72,6 @@ function navigateToSection(hash) {
 </script>
 
 <template>
-    <!-- Focus Mode Floating Exit Dock -->
-    <Transition name="focus-dock">
-        <div v-if="focusMode" class="al-focus-dock" role="status">
-            <span class="al-focus-dot-pulse" aria-hidden="true"></span>
-            <span class="al-focus-label">FOCUS ACTIVE</span>
-            <button
-                type="button"
-                class="al-btn al-btn--secondary al-btn--sm"
-                @click="toggleFocusMode"
-                aria-label="Exit focus mode"
-            >
-                Exit Focus
-            </button>
-        </div>
-    </Transition>
-
     <!-- Mobile Top Navigation Header -->
     <header class="al-mobile-header">
         <button
@@ -379,8 +363,8 @@ function navigateToSection(hash) {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     background: transparent;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -392,7 +376,8 @@ function navigateToSection(hash) {
     font-family: var(--mono);
     font-size: 0.725rem;
     font-weight: 600;
-    padding: 4px 10px;
+    min-height: 44px;
+    padding: 4px 12px;
     background: var(--surface-alt);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -754,7 +739,7 @@ function navigateToSection(hash) {
 }
 
 /* ── Responsive Adaptations ──────────────────────────────────── */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
     .al-mobile-header {
         display: flex;
     }

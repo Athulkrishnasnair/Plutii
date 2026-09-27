@@ -160,8 +160,8 @@ async function copyForAi() {
                         </div>
 
                         <div class="al-lens-panel__body">
-                            <form @submit.prevent="handleAnalyze" novalidate style="display: flex; flex-direction: column; flex: 1">
-                                <div class="al-form-group" style="flex: 1; display: flex; flex-direction: column">
+                            <form @submit.prevent="handleAnalyze" novalidate>
+                                <div class="al-form-group">
                                     <label for="pl-note" class="al-label">
                                         <span>What are you building or refactoring?</span>
                                         <span class="field-required">*</span>
@@ -171,10 +171,9 @@ async function copyForAi() {
                                         v-model="content"
                                         class="al-textarea"
                                         placeholder="Describe the feature, architecture change, or technical task you want to sequence…"
-                                        rows="11"
+                                        rows="7"
                                         required
                                         aria-required="true"
-                                        style="flex: 1; min-height: 220px"
                                     ></textarea>
                                 </div>
 
@@ -247,74 +246,76 @@ async function copyForAi() {
                             </p>
                         </div>
 
-                        <!-- Structured Engineering Plan Artifact -->
-                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Implementation plan">
-                            <!-- Plan Title -->
+                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Implementation plan summary">
                             <div class="al-result__section plan-header-section">
-                                <span class="al-result__label">PLAN TITLE</span>
+                                <span class="al-result__label">SUMMARY</span>
                                 <h2 class="plan-artifact-title">{{ result.title }}</h2>
-                            </div>
-
-                            <!-- Goal -->
-                            <div class="al-result__section">
-                                <span class="al-result__label">ENGINEERING GOAL</span>
                                 <MarkdownRenderer :content="result.goal" class="al-result__value" />
                             </div>
-
-                            <!-- Steps Breakdown -->
-                            <div class="al-result__section">
-                                <span class="al-result__label">IMPLEMENTATION MILESTONES</span>
-
-                                <div class="plan-step-list">
-                                    <article
-                                        v-for="(step, idx) in result.steps"
-                                        :key="idx"
-                                        class="plan-step-item"
-                                    >
-                                        <div class="plan-step-item__marker" aria-hidden="true">
-                                            {{ String(idx + 1).padStart(2, '0') }}
-                                        </div>
-
-                                        <div class="plan-step-item__content">
-                                            <h3 class="plan-step-item__title">
-                                                <MarkdownRenderer :content="step.title" inline />
-                                            </h3>
-
-                                            <ul class="al-result__list plan-action-list">
-                                                <li v-for="action in step.actions" :key="action">
-                                                    <MarkdownRenderer :content="action" inline />
-                                                </li>
-                                            </ul>
-
-                                            <div v-if="step.dependencies?.length" class="plan-step-dep-row">
-                                                <span class="dep-label">DEPENDENCIES:</span>
-                                                <span
-                                                    v-for="dep in step.dependencies"
-                                                    :key="dep"
-                                                    class="dep-pill"
-                                                >
-                                                    {{ dep }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </article>
-                                </div>
-                            </div>
-
-                            <!-- Verification -->
-                            <div class="al-result__section">
-                                <span class="al-result__label">VERIFICATION CHECKLIST</span>
-                                <ul class="al-result__list">
-                                    <li v-for="v in result.verification" :key="v">
-                                        <MarkdownRenderer :content="v" inline />
-                                    </li>
-                                </ul>
-                            </div>
-
                         </div>
                     </section>
 
                 </div>
+
+                <section v-if="result" class="al-lens-details" aria-labelledby="plan-details-heading">
+                    <h2 id="plan-details-heading" class="al-lens-details__heading">Details</h2>
+                    <div class="al-lens-panel al-lens-artifact al-result" role="region" aria-label="Full implementation plan">
+                        <div class="al-result__section plan-header-section">
+                            <span class="al-result__label">PLAN TITLE</span>
+                            <h2 class="plan-artifact-title">{{ result.title }}</h2>
+                        </div>
+
+                        <div class="al-result__section">
+                            <span class="al-result__label">ENGINEERING GOAL</span>
+                            <MarkdownRenderer :content="result.goal" class="al-result__value" />
+                        </div>
+
+                        <div class="al-result__section">
+                            <span class="al-result__label">IMPLEMENTATION MILESTONES</span>
+                            <div class="plan-step-list">
+                                <article
+                                    v-for="(step, idx) in result.steps"
+                                    :key="idx"
+                                    class="plan-step-item"
+                                >
+                                    <div class="plan-step-item__marker" aria-hidden="true">
+                                        {{ String(idx + 1).padStart(2, '0') }}
+                                    </div>
+
+                                    <div class="plan-step-item__content">
+                                        <h3 class="plan-step-item__title">
+                                            <MarkdownRenderer :content="step.title" inline />
+                                        </h3>
+                                        <ul class="al-result__list plan-action-list">
+                                            <li v-for="action in step.actions" :key="action">
+                                                <MarkdownRenderer :content="action" inline />
+                                            </li>
+                                        </ul>
+                                        <div v-if="step.dependencies?.length" class="plan-step-dep-row">
+                                            <span class="dep-label">DEPENDENCIES:</span>
+                                            <span
+                                                v-for="dep in step.dependencies"
+                                                :key="dep"
+                                                class="dep-pill"
+                                            >
+                                                {{ dep }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+
+                        <div class="al-result__section">
+                            <span class="al-result__label">VERIFICATION CHECKLIST</span>
+                            <ul class="al-result__list">
+                                <li v-for="v in result.verification" :key="v">
+                                    <MarkdownRenderer :content="v" inline />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Secondary Full-Width Topology Map -->
                 <PlanImplementationMap

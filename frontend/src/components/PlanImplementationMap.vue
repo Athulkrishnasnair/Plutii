@@ -154,6 +154,8 @@ async function copyMapForAi() {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .plan-map__tag {
@@ -178,6 +180,7 @@ async function copyMapForAi() {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    flex-wrap: wrap;
 }
 
 .plan-map__count {
@@ -203,6 +206,10 @@ async function copyMapForAi() {
 @media (max-width: 640px) {
     .plan-map__canvas {
         height: 320px;
+    }
+
+    .plan-map__header {
+        padding-inline: var(--space-3);
     }
 }
 

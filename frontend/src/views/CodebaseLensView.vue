@@ -49,6 +49,14 @@ const filteredFiles = computed(() => {
     return files.value.filter(f => f.path.toLowerCase().includes(q));
 });
 
+const analysisSummary = computed(() => {
+    const answer = analysis.value?.answer || '';
+    const plainText = answer.replace(/[`*_#>\[\]]/g, '').replace(/\s+/g, ' ').trim();
+    const firstSentence = plainText.match(/^.{1,280}?[.!?](?:\s|$)/)?.[0];
+    if (firstSentence) return firstSentence.trim();
+    return plainText.length > 280 ? `${plainText.slice(0, 277).trimEnd()}...` : plainText;
+});
+
 const selectedCode = computed(() => {
     if (!selectedFile.value?.lines || startLine.value === null) return '';
     const total = selectedFile.value.lines.length;
@@ -969,21 +977,10 @@ async function copyForAi() {
                                         </button>
                                     </form>
 
-                                    <!-- Analysis Result -->
-                                    <div v-if="analysis" class="al-lens-artifact al-result" style="margin-top: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md)" role="region" aria-label="Codebase answer">
+                                    <div v-if="analysis" class="al-lens-artifact al-result" style="margin-top: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md)" role="region" aria-label="Codebase analysis summary">
                                         <div class="al-result__section">
-                                            <span class="al-result__label">Answer</span>
-                                            <MarkdownRenderer :content="analysis.answer" class="al-result__value" />
-                                        </div>
-
-                                        <div v-if="analysis.files?.length" class="al-result__section">
-                                            <span class="al-result__label">Relevant Files & Functions</span>
-                                            <ul class="al-result__list cb-relevant-list">
-                                                <li v-for="rf in analysis.files" :key="rf.path">
-                                                    <code class="cb-relevant-path">{{ rf.path }}</code>
-                                                    <MarkdownRenderer :content="rf.reason" inline class="cb-relevant-reason" />
-                                                </li>
-                                            </ul>
+                                            <span class="al-result__label">Summary</span>
+                                            <p class="al-result__value">{{ analysisSummary }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -992,6 +989,25 @@ async function copyForAi() {
                         </section>
 
                     </div>
+
+                    <section v-if="analysis" class="al-lens-details" aria-labelledby="codebase-details-heading">
+                        <h2 id="codebase-details-heading" class="al-lens-details__heading">Details</h2>
+                        <div class="al-lens-panel al-lens-artifact al-result" role="region" aria-label="Full codebase analysis">
+                            <div class="al-result__section">
+                                <span class="al-result__label">Answer</span>
+                                <MarkdownRenderer :content="analysis.answer" class="al-result__value" />
+                            </div>
+                            <div v-if="analysis.files?.length" class="al-result__section">
+                                <span class="al-result__label">Relevant Files & Functions</span>
+                                <ul class="al-result__list cb-relevant-list">
+                                    <li v-for="rf in analysis.files" :key="rf.path">
+                                        <code class="cb-relevant-path">{{ rf.path }}</code>
+                                        <MarkdownRenderer :content="rf.reason" inline class="cb-relevant-reason" />
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
 
                     <!-- Step 3: Implementation Topology Map (Full-Width Secondary Artifact) -->
                     <div style="margin-top: var(--space-8)">
@@ -1208,6 +1224,8 @@ async function copyForAi() {
 .cb-tabs-nav {
     display: flex;
     gap: 4px;
+    min-width: 0;
+    flex-wrap: wrap;
     background: var(--surface-alt);
     padding: 2px;
     border-radius: var(--radius-sm);
@@ -1219,6 +1237,7 @@ async function copyForAi() {
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
+    min-height: 36px;
     font-family: var(--mono);
     font-size: 0.75rem;
     font-weight: 600;
@@ -1264,6 +1283,7 @@ async function copyForAi() {
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
+    flex-wrap: wrap;
     background: var(--surface-alt);
     padding: 6px 10px;
     border-radius: var(--radius-sm);
@@ -1271,6 +1291,7 @@ async function copyForAi() {
 }
 
 .cb-viewer-path {
+    flex: 1 1 180px;
     min-width: 0;
     overflow: hidden;
 }
@@ -1290,6 +1311,7 @@ async function copyForAi() {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
     flex-shrink: 0;
 }
 
@@ -1319,6 +1341,8 @@ async function copyForAi() {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .cb-range-label {
@@ -1363,6 +1387,58 @@ async function copyForAi() {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .cb-file-list {
+        max-height: 240px;
+    }
+
+    .cb-tabs-header {
+        align-items: stretch;
+    }
+
+    .cb-tabs-nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .cb-tab-btn {
+        justify-content: center;
+        min-height: 44px;
+        min-width: 0;
+        white-space: normal;
+    }
+
+    .cb-file-item {
+        min-height: 44px;
+    }
+
+    .cb-line-input {
+        height: 40px;
+    }
+
+    .cb-btn-text {
+        min-height: 36px;
+        padding-inline: 8px;
+    }
+
+    .cb-viewer-meta {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .cb-action-btns {
+        width: 100%;
+    }
+
+    .cb-action-btns .al-btn {
+        flex: 1 1 140px;
+        white-space: normal;
+    }
 }
 
 /* Monospace Code Box */

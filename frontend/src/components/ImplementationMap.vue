@@ -175,6 +175,8 @@ async function copyMapForAi() {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .imp-map__tag {
@@ -199,6 +201,7 @@ async function copyMapForAi() {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    flex-wrap: wrap;
 }
 
 .imp-map__stats {
@@ -217,6 +220,8 @@ async function copyMapForAi() {
 .imp-map__canvas {
     height: 420px;
     background: var(--bg);
+    width: 100%;
+    min-width: 0;
 }
 
 :deep(.vue-flow__node) {
