@@ -1,5 +1,5 @@
 // Set URL
-const API_URL = 'https://arrowlens-backend.onrender.com/api';
+const API_URL = 'https://arrowlens.onrender.com/api';
 
 // Wrapper function for request
 async function req(endpoint, options = {}) {
