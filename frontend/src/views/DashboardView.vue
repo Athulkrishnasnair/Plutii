@@ -98,9 +98,21 @@ async function handleDeleteAnalysis(id) {
     }
 }
 
-onMounted(() => {
-    loadNotes();
-    loadRecentAnalyses();
+onMounted(async () => {
+    // Wait until the initial authentication check has completed
+    if (!authState.checked) {
+        while (!authState.checked) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+    }
+
+    // Only load protected data when the user is authenticated
+    if (authState.user) {
+        await Promise.all([
+            loadNotes(),
+            loadRecentAnalyses()
+        ]);
+    }
 });
 </script>
 
