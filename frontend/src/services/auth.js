@@ -1,6 +1,6 @@
 // credentials: "include" includes credentials as cookies while making a cross origin request
 
-const API_KEY = 'https://arrowlens.onrender.com/api';
+const API_KEY = '/api';
 
 async function request(endpoint, options = {}) {
     const response = await fetch(`${API_KEY}${endpoint}`, {
