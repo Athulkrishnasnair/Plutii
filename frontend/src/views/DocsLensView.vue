@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import { analyzeDocs, fetchDocsUrl } from '../services/api';
 import Navbar from '../components/Navbar.vue';
+import MarkdownRenderer from '../components/MarkdownRenderer.vue';
+import CodeBlock from '../components/CodeBlock.vue';
 
 const content = ref('');
 const result = ref(null);
@@ -73,20 +75,46 @@ async function handleAnalyze() {
     }
 }
 
-function copyResult() {
-    if (!result.value) return;
-    const text = [
-        `SUMMARY:\n${result.value.summary}`,
-        `\nKEY CONCEPTS:\n${(result.value.key_concepts || []).map(c => `- ${c}`).join('\n')}`,
-        `\nEXAMPLE:\n${result.value.example}`,
-        `\nCOMMON MISTAKE:\n${result.value.common_mistake}`
-    ].join('\n');
+function getDocsAiMarkdown() {
+    if (!result.value) return '';
+    const parts = [
+        '# ArrowLens Documentation Analysis',
+        '',
+        '## Summary',
+        result.value.summary || '',
+        '',
+        '## Key Concepts',
+        ...(result.value.key_concepts || []).map(c => `- ${c}`),
+        '',
+        '## Example',
+        '```',
+        result.value.example || '',
+        '```',
+        '',
+        '## Common Mistake',
+        result.value.common_mistake || ''
+    ];
 
-    navigator.clipboard.writeText(text);
-    copied.value = true;
-    setTimeout(() => {
-        copied.value = false;
-    }, 2000);
+    if (sourceUrl.value) {
+        parts.push('', '## Source Reference', sourceUrl.value);
+    }
+
+    return parts.join('\n');
+}
+
+async function copyForAi() {
+    const text = getDocsAiMarkdown();
+    if (!text) return;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        copied.value = true;
+        setTimeout(() => {
+            copied.value = false;
+        }, 2000);
+    } catch (e) {
+        console.error('Clipboard copy failed:', e);
+    }
 }
 </script>
 
@@ -94,12 +122,20 @@ function copyResult() {
     <div class="al-app-shell">
         <Navbar />
 
-        <main class="al-app-main" id="main-content">
+        <main class="al-app-main al-lens-page" id="main-content">
             <div class="al-container">
 
                 <!-- Header -->
-                <header class="al-page-header">
-                    <span class="al-page-eyebrow">02 / DOCS LENS</span>
+                <header class="al-page-header al-lens-header">
+                    <div class="al-lens-eyebrow">
+                        <span class="al-lens-eyebrow__icon al-lens-eyebrow__icon--docs" aria-hidden="true">
+                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                                <path d="M3.5 2.5h6l3 3v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.3"/>
+                                <path d="M9.5 2.5v3h3M5.5 8h5M5.5 10.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span>DOCS LENS</span>
+                    </div>
                     <h1 class="al-page-title">Technical Documentation Distiller</h1>
                     <p class="al-page-desc">
                         Fetch from a live URL or paste API reference content. ArrowLens extracts
@@ -107,12 +143,14 @@ function copyResult() {
                     </p>
                 </header>
 
-                <div class="al-workspace al-workspace--natural">
+                <div class="al-lens-workspace">
 
                     <!-- Left: Input Workspace Panel -->
-                    <section class="al-workspace__panel" aria-labelledby="docs-input-heading">
-                        <div class="al-workspace__panel-header">
-                            <span id="docs-input-heading">DOCUMENTATION SOURCE</span>
+                    <section class="al-lens-panel" aria-labelledby="docs-input-heading">
+                        <div class="al-lens-panel__header">
+                            <div class="al-lens-panel__title">
+                                <span id="docs-input-heading">DOCUMENTATION SOURCE</span>
+                            </div>
                             <div class="panel-header-actions">
                                 <button
                                     v-if="!content"
@@ -133,7 +171,7 @@ function copyResult() {
                             </div>
                         </div>
 
-                        <div class="al-workspace__panel-body">
+                        <div class="al-lens-panel__body">
                             <!-- Step 1: URL Fetcher Row -->
                             <div class="al-form-group">
                                 <label for="docs-url" class="al-label">
@@ -167,8 +205,8 @@ function copyResult() {
                             </div>
 
                             <!-- Step 2: Documentation Editor Area -->
-                            <form @submit.prevent="handleAnalyze" novalidate>
-                                <div class="al-form-group">
+                            <form @submit.prevent="handleAnalyze" novalidate style="display: flex; flex-direction: column; flex: 1">
+                                <div class="al-form-group" style="flex: 1; display: flex; flex-direction: column">
                                     <label for="dl-docs" class="al-label">
                                         <span>Documentation Content (Editable)</span>
                                         <span class="field-required">*</span>
@@ -178,9 +216,10 @@ function copyResult() {
                                         v-model="content"
                                         class="al-textarea"
                                         placeholder="Paste library reference, API specification, or migration guide here…"
-                                        rows="11"
+                                        rows="10"
                                         required
                                         aria-required="true"
+                                        style="flex: 1; min-height: 180px"
                                     ></textarea>
                                 </div>
 
@@ -209,16 +248,27 @@ function copyResult() {
                     </section>
 
                     <!-- Right: Distilled Result Panel -->
-                    <section class="al-workspace__panel" aria-labelledby="docs-result-heading">
-                        <div class="al-workspace__panel-header">
-                            <span id="docs-result-heading">DISTILLED SPECIFICATION</span>
+                    <section class="al-lens-panel" aria-labelledby="docs-result-heading">
+                        <div class="al-lens-panel__header">
+                            <div class="al-lens-panel__title">
+                                <span id="docs-result-heading">DISTILLED SPECIFICATION</span>
+                            </div>
                             <button
                                 v-if="result"
                                 type="button"
-                                class="text-link-btn"
-                                @click="copyResult"
+                                class="al-btn-copy-ai"
+                                :class="{ 'al-btn-copy-ai--copied': copied }"
+                                @click="copyForAi"
+                                aria-label="Copy specification formatted for AI assistant"
                             >
-                                {{ copied ? 'Copied ✓' : 'Copy Summary' }}
+                                <svg v-if="!copied" width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                                    <path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                                </svg>
+                                <svg v-else width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ copied ? 'Copied' : 'Copy for AI' }}</span>
                             </button>
                         </div>
 
@@ -244,30 +294,30 @@ function copyResult() {
                         </div>
 
                         <!-- Structured Results Hierarchy -->
-                        <div v-else class="al-result" role="region" aria-label="Documentation analysis result">
+                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Documentation analysis result">
                             <div class="al-result__section">
                                 <span class="al-result__label">Summary</span>
-                                <p class="al-result__value">{{ result.summary }}</p>
+                                <MarkdownRenderer :content="result.summary" class="al-result__value" />
                             </div>
 
                             <div class="al-result__section">
                                 <span class="al-result__label">Key Concepts</span>
                                 <ul class="al-result__list">
                                     <li v-for="(concept, idx) in result.key_concepts" :key="idx">
-                                        {{ concept }}
+                                        <MarkdownRenderer :content="concept" inline />
                                     </li>
                                 </ul>
                             </div>
 
                             <div class="al-result__section">
                                 <span class="al-result__label">Working Example</span>
-                                <pre class="example-code-block"><code>{{ result.example }}</code></pre>
+                                <CodeBlock :code="result.example" lang="python" />
                             </div>
 
                             <div class="al-result__section">
                                 <span class="al-result__label">Common Mistake to Avoid</span>
                                 <div class="al-callout al-callout--warning">
-                                    <p class="al-result__value">{{ result.common_mistake }}</p>
+                                    <MarkdownRenderer :content="result.common_mistake" class="al-result__value" />
                                 </div>
                             </div>
                         </div>
@@ -366,6 +416,8 @@ function copyResult() {
     line-height: 1.6;
     overflow-x: auto;
     margin: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .loading-title {

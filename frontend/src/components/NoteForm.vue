@@ -1,262 +1,241 @@
-<template>
-    <form @submit.prevent="submitForm">
-        <h2>{{ note ? "Edit note" : "Create note" }}</h2>
-
-        <label for="title">Note title</label>
-        <input type="text"
-        placeholder="Note title"
-        v-model="title"
-        id="title"
-        >
-
-        <label for="content">Write a note</label>
-        <textarea id="content"
-        placeholder="Write your note"
-        rows="6"
-        v-model="content"
-        ></textarea>
-
-        <p v-if="error" class="error">{{ error }}</p>
-
-        <div class="actions">
-            <button type="submit">
-                {{ note ? "Update" : "Create"}}
-            </button>
-
-            <button type="button" v-if="note"
-            @click="$emit('cancel')"
-            >Cancel</button>
-        </div>
-    </form>
-</template>
-
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
-// Define a prop note
 const props = defineProps({
     note: {
         type: Object,
         default: null
     }
-   
-})
+});
 
-// Define Emits
-const emit = defineEmits(["save", "cancel"])
+const emit = defineEmits(['save', 'cancel']);
 
-// Reactive variables
 const title = ref('');
 const content = ref('');
 const error = ref('');
 
-// When note changes
 watch(
     () => props.note,
-    (note) => {
-        title.value = note?.title || "";
-        content.value = note?.content || "";
+    (n) => {
+        title.value = n?.title || '';
+        content.value = n?.content || '';
     },
-    {immediate: true}
+    { immediate: true }
 );
 
-// Form submit
-function submitForm(){
-    console.log('SUBMIT: ', title.value, content.value)
-
+function submitForm() {
     error.value = '';
 
     if (!title.value.trim()) {
-        error.value = 'Title is required';
+        error.value = 'A title is required for this note.';
         return;
     }
 
     if (!content.value.trim()) {
-        error.value = 'Content is required';
+        error.value = 'Please provide content or an implementation idea.';
         return;
     }
 
-
-    emit('save', 
-        {
-            title: title.value,
-            content: content.value
-        }
-    )
+    emit('save', {
+        title: title.value.trim(),
+        content: content.value.trim()
+    });
 }
 
+function handleEscape(e) {
+    if (e.key === 'Escape') {
+        emit('cancel');
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', handleEscape);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleEscape);
+});
 </script>
 
+<template>
+    <div
+        class="note-modal-backdrop"
+        @click.self="$emit('cancel')"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="note ? 'Edit Note' : 'Create New Note'"
+    >
+        <div class="note-modal-card">
+            <header class="note-modal__header">
+                <div>
+                    <span class="note-modal__eyebrow">
+                        DEVELOPER SCRATCHPAD
+                    </span>
+                    <h2 class="note-modal__title">
+                        {{ note ? 'Edit Note' : 'Capture New Note' }}
+                    </h2>
+                </div>
+                <button
+                    type="button"
+                    class="note-modal__close"
+                    aria-label="Close form"
+                    @click="$emit('cancel')"
+                >
+                    ×
+                </button>
+            </header>
+
+            <form class="note-modal__form" @submit.prevent="submitForm" novalidate>
+                <div class="al-form-group">
+                    <label for="note-title-input" class="al-label">
+                        Note Title <span class="field-required">*</span>
+                    </label>
+                    <input
+                        id="note-title-input"
+                        v-model="title"
+                        type="text"
+                        class="al-input"
+                        :class="{ 'al-input--error': error && !title.trim() }"
+                        placeholder="e.g. Asynchronous event retry architecture"
+                        required
+                        autofocus
+                    />
+                </div>
+
+                <div class="al-form-group">
+                    <label for="note-content-input" class="al-label">
+                        Content / Implementation Spec <span class="field-required">*</span>
+                    </label>
+                    <textarea
+                        id="note-content-input"
+                        v-model="content"
+                        class="al-textarea"
+                        :class="{ 'al-textarea--error': error && !content.trim() }"
+                        rows="7"
+                        placeholder="Describe the technical idea, API contract, or error fix you want to turn into an implementation plan…"
+                        required
+                    ></textarea>
+                </div>
+
+                <div v-if="error" class="al-status-error" role="alert">
+                    {{ error }}
+                </div>
+
+                <footer class="note-modal__actions">
+                    <button
+                        type="button"
+                        class="al-btn al-btn--ghost"
+                        @click="$emit('cancel')"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="al-btn al-btn--primary"
+                    >
+                        {{ note ? 'Save Changes' : 'Save Note' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</template>
+
 <style scoped>
-form {
+.note-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(10, 12, 16, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.note-modal-card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.note-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-alt);
+}
+
+.note-modal__eyebrow {
+    font-family: var(--mono);
+    font-size: 0.675rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.note-modal__title {
+    font-family: var(--heading);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-h);
+    margin: 0;
+}
+
+.note-modal__close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.note-modal__close:hover {
+    background: var(--surface-active);
+    color: var(--text-h);
+}
+
+.note-modal__form {
+    padding: var(--space-6);
     display: flex;
     flex-direction: column;
-
-    max-width: 700px;
-    margin: 28px auto;
-    padding: 28px;
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    gap: var(--space-5);
 }
 
-h2 {
-    margin: 0 0 18px;
-
-    color: #222;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-/* Labels */
-
-label {
-    margin-bottom: 7px;
-
-    color: #444;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-/* Inputs */
-
-input,
-textarea {
-    width: 100%;
-    box-sizing: border-box;
-
-    padding: 12px 14px;
-
-    border: 1px solid #d6d6d6;
-    border-radius: 10px;
-
-    background: #fafafa;
-    color: #222;
-
-    font: inherit;
-    font-size: 0.95rem;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-input {
-    margin-bottom: 10px;
-}
-
-textarea {
-    min-height: 180px;
-    resize: vertical;
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: #999;
-}
-
-input:focus,
-textarea:focus {
-    background: #ffffff;
-    border-color: #42b883;
-
-    box-shadow: 0 0 0 3px rgba(66, 184, 131, 0.12);
-}
-
-/* Error */
-
-.error {
-    margin: 10px 0 0;
-
-    color: #dc2626;
-    font-size: 0.85rem;
-}
-
-/* Buttons */
-
-.actions {
+.note-modal__actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    gap: 10px;
-
-    margin-top: 20px;
-}
-
-.actions button {
-    padding: 10px 17px;
-
-    border: none;
-    border-radius: 9px;
-
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.actions button:hover {
-    transform: translateY(-1px);
-}
-
-/* Create / Update */
-
-.actions button[type="submit"] {
-    background: #42b883;
-    color: white;
-
-    box-shadow: 0 4px 10px rgba(66, 184, 131, 0.2);
-}
-
-.actions button[type="submit"]:hover {
-    background: #369f70;
-    box-shadow: 0 6px 14px rgba(66, 184, 131, 0.25);
-}
-
-/* Cancel */
-
-.actions button[type="button"] {
-    background: #f1f1f2;
-    color: #555;
-}
-
-.actions button[type="button"]:hover {
-    background: #e5e5e7;
-}
-
-/* Keyboard accessibility */
-
-.actions button:focus-visible {
-    outline: 3px solid rgba(66, 184, 131, 0.25);
-    outline-offset: 2px;
-}
-
-/* Mobile */
-
-@media (max-width: 600px) {
-    form {
-        margin: 20px 0;
-        padding: 20px;
-    }
-
-    .actions {
-        flex-direction: column-reverse;
-    }
-
-    .actions button {
-        width: 100%;
-    }
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
 }
 </style>

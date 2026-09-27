@@ -68,6 +68,8 @@ def register():
 def login():
      data = request.get_json()
 
+     
+     
     #  Validate data
      if not data:
           return jsonify({
@@ -94,8 +96,10 @@ def login():
     #  Store the user session 
      session["user_id"] = user.id
 
+     print("LOGIN SESSION:", dict(session))
+
     # Sucess
-     return({
+     return jsonify({
           "message": "Login successful",
           "user": {
                "id": user.id,
@@ -112,6 +116,7 @@ def get_current_user():
 
      # Retrive session id
      user_id = session.get("user_id")
+     print("ME SESSION:", dict(session))
 
      if not user_id:
           return jsonify({

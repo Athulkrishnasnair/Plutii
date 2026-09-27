@@ -1,37 +1,63 @@
 <script setup>
-// Define props
 defineProps({
     note: {
         type: Object,
         required: true,
     }
-})
+});
 
-// Define emites
-const emit = defineEmits(["edit", "delete"]);
+defineEmits(['edit', 'delete']);
 </script>
 
 <template>
-    <article class="note-card">
-        <div class="note-content">
-            <h2>{{ note.title }}</h2>
-            <p>{{ note.content }}</p>
+    <article class="note-card" :aria-labelledby="`note-title-${note.id}`">
+        <div class="note-card__header">
+            <span class="note-card__tag" aria-hidden="true">NOTE // #{{ note.id }}</span>
+            <div class="note-card__actions">
+                <button
+                    type="button"
+                    class="note-btn-icon"
+                    aria-label="Edit note"
+                    title="Edit note"
+                    @click="$emit('edit', note)"
+                >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M11.5 2.5a2.121 2.121 0 0 1 3 3L5 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    class="note-btn-icon note-btn-icon--danger"
+                    aria-label="Delete note"
+                    title="Delete note"
+                    @click="$emit('delete', note.id)"
+                >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M2 4h12M5.5 4V2.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4M6 7v5M10 7v5M3.5 4l.8 10a1 1 0 0 0 1 .9h5.4a1 1 0 0 0 1-.9l.8-10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
-        <div class="actions">
-            <button
-                class="edit-button"
-                @click="$emit('edit', note)"
-            >
-                Edit
-            </button>
+        <div class="note-card__body">
+            <h3 :id="`note-title-${note.id}`" class="note-card__title">
+                {{ note.title }}
+            </h3>
+            <p class="note-card__text">
+                {{ note.content }}
+            </p>
+        </div>
 
-            <button
-                class="delete-button"
-                @click="$emit('delete', note.id)"
+        <div class="note-card__footer">
+            <router-link
+                :to="{ path: '/plan-lens', query: { note: note.content } }"
+                class="note-plan-cta"
             >
-                Delete
-            </button>
+                <span>Turn into Plan</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2.5 7h9M8 3.5 11.5 7 8 10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </router-link>
         </div>
     </article>
 </template>
@@ -40,131 +66,120 @@ const emit = defineEmits(["edit", "delete"]);
 .note-card {
     display: flex;
     flex-direction: column;
-
-    min-height: 180px;
-    padding: 20px;
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--duration-fast), transform var(--duration-fast), box-shadow var(--duration-fast);
+    position: relative;
+    border-top: 3px solid var(--border-strong);
 }
 
 .note-card:hover {
-    transform: translateY(-3px);
-
-    border-color: #d8e8e1;
-
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    border-color: var(--border-strong);
+    border-top-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-/* Content */
-
-.note-content {
-    flex: 1;
+.note-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
 }
 
-.note-card h2 {
-    margin: 0 0 10px;
-
-    color: #222;
-    font-size: 1.15rem;
+.note-card__tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
 
+.note-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.note-btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.note-btn-icon:hover {
+    background: var(--surface-alt);
+    color: var(--text-h);
+    border-color: var(--border);
+}
+
+.note-btn-icon--danger:hover {
+    background: var(--error-bg);
+    color: var(--error);
+    border-color: rgba(220, 38, 38, 0.25);
+}
+
+.note-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.note-card__title {
+    font-family: var(--heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-h);
+    margin: 0;
     overflow-wrap: anywhere;
 }
 
-.note-card p {
-    margin: 0;
-
-    color: #666;
-    font-size: 0.92rem;
+.note-card__text {
+    font-size: 0.875rem;
     line-height: 1.6;
-
+    color: var(--text);
+    margin: 0;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+    max-height: 140px;
+    overflow-y: auto;
 }
 
-/* Actions */
-
-.actions {
+.note-card__footer {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    gap: 8px;
-
-    margin-top: 20px;
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--border);
 }
 
-.actions button {
-    padding: 7px 12px;
-
-    border: none;
-    border-radius: 8px;
-
-    font-size: 0.82rem;
+.note-plan-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.775rem;
     font-weight: 600;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+    color: var(--accent);
+    text-decoration: none;
+    transition: gap 0.15s;
 }
 
-.actions button:hover {
-    transform: translateY(-1px);
-}
-
-/* Edit */
-
-.edit-button {
-    background: #eef8f3;
-    color: #369f70;
-}
-
-.edit-button:hover {
-    background: #dff2e9;
-}
-
-/* Delete */
-
-.delete-button {
-    background: #fef2f2;
-    color: #dc2626;
-}
-
-.delete-button:hover {
-    background: #fee2e2;
-}
-
-/* Keyboard focus */
-
-.actions button:focus-visible {
-    outline: 3px solid rgba(66, 184, 131, 0.2);
-    outline-offset: 2px;
-}
-
-/* Mobile */
-
-@media (max-width: 600px) {
-    .note-card {
-        min-height: 150px;
-    }
-
-    .actions {
-        justify-content: stretch;
-    }
-
-    .actions button {
-        flex: 1;
-    }
+.note-plan-cta:hover {
+    gap: 9px;
+    text-decoration: underline;
 }
 </style>

@@ -1,6 +1,10 @@
 from flask import Flask 
+from dotenv import load_dotenv
 from .extensions import db
 from flask_cors import CORS
+
+
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +20,14 @@ def create_app():
     # Configure the session key
     app.config["SECRET_KEY"] = "dev-secret-key"
 
+    # Allow the session cookie to be sent on cross-origin requests
+    # (frontend on :5173, backend on :5000 are different origins).
+    # SameSite=None is required for credentials to be included in
+    # cross-origin fetch calls; Secure=False is intentional for local dev.
+    # app.config["SESSION_COOKIE_SAMESITE"] = "None"
+    # app.config["SESSION_COOKIE_SECURE"] = False
+
+    
 
     # Connecting db to FLask app
     db.init_app(app)
@@ -34,6 +46,18 @@ def create_app():
     # Register Analysis route
     from .analysis.routes import analysis_bp
     app.register_blueprint(analysis_bp)
+
+    # Register Docs route
+    from .docs.routes import docs_bp
+    app.register_blueprint(docs_bp)
+
+    # Register plan route
+    from .plan.routes import plan_bp
+    app.register_blueprint(plan_bp)
+
+    # Register codebase route
+    from .codebase.routes import codebase_bp
+    app.register_blueprint(codebase_bp)
 
     # Register auth route
     from .auth.routes import auth_bp

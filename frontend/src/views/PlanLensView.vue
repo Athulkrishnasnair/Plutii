@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import { analyzePlan } from '../services/api';
 import Navbar from '../components/Navbar.vue';
 import PlanImplementationMap from '../components/PlanImplementationMap.vue';
+import MarkdownRenderer from '../components/MarkdownRenderer.vue';
 
 const route = useRoute();
 const content = ref('');
@@ -49,26 +50,58 @@ async function handleAnalyze() {
     }
 }
 
-function copyPlan() {
-    if (!result.value) return;
-    const text = [
-        `PLAN: ${result.value.title}`,
-        `GOAL: ${result.value.goal}`,
-        `\nSTEPS:`,
-        ...(result.value.steps || []).map((s, i) =>
-            `\n${i + 1}. ${s.title}\n` +
-            (s.actions || []).map(a => `   - ${a}`).join('\n') +
-            (s.dependencies?.length ? `\n   Dependencies: ${s.dependencies.join(', ')}` : '')
-        ),
-        `\nVERIFICATION:`,
-        ...(result.value.verification || []).map(v => `- ${v}`)
-    ].join('\n');
+function getPlanAiMarkdown() {
+    if (!result.value) return '';
+    const parts = [
+        '# ArrowLens Implementation Plan',
+        '',
+        '## Title',
+        result.value.title || 'Implementation Plan',
+        '',
+        '## Goal',
+        result.value.goal || '',
+        '',
+        '## Steps'
+    ];
 
-    navigator.clipboard.writeText(text);
-    copied.value = true;
-    setTimeout(() => {
-        copied.value = false;
-    }, 2000);
+    (result.value.steps || []).forEach((step, idx) => {
+        parts.push('', `### ${idx + 1}. ${step.title}`, '', 'Actions:');
+        (step.actions || []).forEach(action => {
+            parts.push(`- ${action}`);
+        });
+        parts.push('', 'Dependencies:');
+        if (step.dependencies && step.dependencies.length > 0) {
+            step.dependencies.forEach(dep => {
+                parts.push(`- ${dep}`);
+            });
+        } else {
+            parts.push('- None');
+        }
+    });
+
+    if (result.value.verification?.length) {
+        parts.push('', '## Verification');
+        result.value.verification.forEach(v => {
+            parts.push(`- ${v}`);
+        });
+    }
+
+    return parts.join('\n');
+}
+
+async function copyForAi() {
+    const text = getPlanAiMarkdown();
+    if (!text) return;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        copied.value = true;
+        setTimeout(() => {
+            copied.value = false;
+        }, 2000);
+    } catch (e) {
+        console.error('Clipboard copy failed:', e);
+    }
 }
 </script>
 
@@ -76,12 +109,21 @@ function copyPlan() {
     <div class="al-app-shell">
         <Navbar />
 
-        <main class="al-app-main" id="main-content">
+        <main class="al-app-main al-lens-page" id="main-content">
             <div class="al-container">
 
                 <!-- Header -->
-                <header class="al-page-header">
-                    <span class="al-page-eyebrow">03 / PLAN LENS</span>
+                <header class="al-page-header al-lens-header">
+                    <div class="al-lens-eyebrow">
+                        <span class="al-lens-eyebrow__icon al-lens-eyebrow__icon--plan" aria-hidden="true">
+                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                                <circle cx="3.5" cy="4" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+                                <circle cx="12.5" cy="12" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+                                <path d="M5 4h3.5a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 0 2.5 2.5H11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span>PLAN LENS</span>
+                    </div>
                     <h1 class="al-page-title">Architecture & Implementation Planner</h1>
                     <p class="al-page-desc">
                         Provide a feature concept or engineering note. ArrowLens structures it into
@@ -89,12 +131,14 @@ function copyPlan() {
                     </p>
                 </header>
 
-                <div class="al-workspace al-workspace--natural">
+                <div class="al-lens-workspace">
 
                     <!-- Left: Input Workspace Panel -->
-                    <section class="al-workspace__panel" aria-labelledby="plan-input-heading">
-                        <div class="al-workspace__panel-header">
-                            <span id="plan-input-heading">DEVELOPER NOTE SPECIFICATION</span>
+                    <section class="al-lens-panel" aria-labelledby="plan-input-heading">
+                        <div class="al-lens-panel__header">
+                            <div class="al-lens-panel__title">
+                                <span id="plan-input-heading">DEVELOPER NOTE SPECIFICATION</span>
+                            </div>
                             <div class="panel-header-actions">
                                 <button
                                     v-if="!content"
@@ -115,9 +159,9 @@ function copyPlan() {
                             </div>
                         </div>
 
-                        <div class="al-workspace__panel-body">
-                            <form @submit.prevent="handleAnalyze" novalidate>
-                                <div class="al-form-group">
+                        <div class="al-lens-panel__body">
+                            <form @submit.prevent="handleAnalyze" novalidate style="display: flex; flex-direction: column; flex: 1">
+                                <div class="al-form-group" style="flex: 1; display: flex; flex-direction: column">
                                     <label for="pl-note" class="al-label">
                                         <span>What are you building or refactoring?</span>
                                         <span class="field-required">*</span>
@@ -127,9 +171,10 @@ function copyPlan() {
                                         v-model="content"
                                         class="al-textarea"
                                         placeholder="Describe the feature, architecture change, or technical task you want to sequence…"
-                                        rows="13"
+                                        rows="11"
                                         required
                                         aria-required="true"
+                                        style="flex: 1; min-height: 220px"
                                     ></textarea>
                                 </div>
 
@@ -158,16 +203,27 @@ function copyPlan() {
                     </section>
 
                     <!-- Right: Implementation Plan Artifact Panel -->
-                    <section class="al-workspace__panel" aria-labelledby="plan-result-heading">
-                        <div class="al-workspace__panel-header">
-                            <span id="plan-result-heading">IMPLEMENTATION ARTIFACT</span>
+                    <section class="al-lens-panel" aria-labelledby="plan-result-heading">
+                        <div class="al-lens-panel__header">
+                            <div class="al-lens-panel__title">
+                                <span id="plan-result-heading">IMPLEMENTATION ARTIFACT</span>
+                            </div>
                             <button
                                 v-if="result"
                                 type="button"
-                                class="text-link-btn"
-                                @click="copyPlan"
+                                class="al-btn-copy-ai"
+                                :class="{ 'al-btn-copy-ai--copied': copied }"
+                                @click="copyForAi"
+                                aria-label="Copy implementation plan formatted for AI assistant"
                             >
-                                {{ copied ? 'Copied ✓' : 'Copy Plan' }}
+                                <svg v-if="!copied" width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                                    <path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                                </svg>
+                                <svg v-else width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ copied ? 'Copied' : 'Copy for AI' }}</span>
                             </button>
                         </div>
 
@@ -192,7 +248,7 @@ function copyPlan() {
                         </div>
 
                         <!-- Structured Engineering Plan Artifact -->
-                        <div v-else class="al-result" role="region" aria-label="Implementation plan">
+                        <div v-else class="al-lens-artifact al-result" role="region" aria-label="Implementation plan">
                             <!-- Plan Title -->
                             <div class="al-result__section plan-header-section">
                                 <span class="al-result__label">PLAN TITLE</span>
@@ -202,7 +258,7 @@ function copyPlan() {
                             <!-- Goal -->
                             <div class="al-result__section">
                                 <span class="al-result__label">ENGINEERING GOAL</span>
-                                <p class="al-result__value">{{ result.goal }}</p>
+                                <MarkdownRenderer :content="result.goal" class="al-result__value" />
                             </div>
 
                             <!-- Steps Breakdown -->
@@ -221,12 +277,12 @@ function copyPlan() {
 
                                         <div class="plan-step-item__content">
                                             <h3 class="plan-step-item__title">
-                                                {{ step.title }}
+                                                <MarkdownRenderer :content="step.title" inline />
                                             </h3>
 
                                             <ul class="al-result__list plan-action-list">
                                                 <li v-for="action in step.actions" :key="action">
-                                                    {{ action }}
+                                                    <MarkdownRenderer :content="action" inline />
                                                 </li>
                                             </ul>
 
@@ -250,7 +306,7 @@ function copyPlan() {
                                 <span class="al-result__label">VERIFICATION CHECKLIST</span>
                                 <ul class="al-result__list">
                                     <li v-for="v in result.verification" :key="v">
-                                        {{ v }}
+                                        <MarkdownRenderer :content="v" inline />
                                     </li>
                                 </ul>
                             </div>
@@ -260,9 +316,11 @@ function copyPlan() {
 
                 </div>
 
+                <!-- Secondary Full-Width Topology Map -->
                 <PlanImplementationMap
                     v-if="result?.steps?.length"
                     :steps="result.steps"
+                    :plan-title="result.title"
                 />
 
             </div>
@@ -312,6 +370,7 @@ function copyPlan() {
     color: var(--text-h);
     margin: 0;
     letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
 }
 
 .plan-step-list {
@@ -362,6 +421,7 @@ function copyPlan() {
     font-weight: 600;
     color: var(--text-h);
     margin: 0 0 var(--space-2);
+    overflow-wrap: anywhere;
 }
 
 .plan-action-list {

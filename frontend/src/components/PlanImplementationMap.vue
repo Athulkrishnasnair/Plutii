@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { VueFlow } from '@vue-flow/core';
 import '@vue-flow/core/dist/style.css';
 
@@ -7,8 +7,14 @@ const props = defineProps({
     steps: {
         type: Array,
         default: () => []
+    },
+    planTitle: {
+        type: String,
+        default: 'Implementation Plan'
     }
 });
+
+const copied = ref(false);
 
 const nodes = computed(() => {
     return props.steps.map((step, index) => ({
@@ -34,6 +40,50 @@ const edges = computed(() => {
         style: { stroke: 'var(--accent)', strokeWidth: 2 }
     }));
 });
+
+function getMapAiMarkdown() {
+    if (!props.steps || !props.steps.length) return '';
+    const parts = [
+        '# ArrowLens Implementation Map',
+        '',
+        `Plan: ${props.planTitle}`,
+        `Total Milestones: ${props.steps.length}`,
+        ''
+    ];
+
+    props.steps.forEach((step, idx) => {
+        const nextStep = props.steps[idx + 1];
+        parts.push(`${idx + 1}. ${step.title}`);
+        if (step.actions?.length) {
+            parts.push('   Actions:');
+            step.actions.forEach(a => parts.push(`   - ${a}`));
+        }
+        if (step.dependencies?.length) {
+            parts.push(`   Dependencies: ${step.dependencies.join(', ')}`);
+        }
+        if (nextStep) {
+            parts.push(`   → Next: ${nextStep.title}`);
+        }
+        parts.push('');
+    });
+
+    return parts.join('\n').trim();
+}
+
+async function copyMapForAi() {
+    const text = getMapAiMarkdown();
+    if (!text) return;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        copied.value = true;
+        setTimeout(() => {
+            copied.value = false;
+        }, 2000);
+    } catch (e) {
+        console.error('Clipboard copy failed:', e);
+    }
+}
 </script>
 
 <template>
@@ -43,7 +93,25 @@ const edges = computed(() => {
                 <span class="plan-map__tag">TOPOLOGY</span>
                 <h3 class="plan-map__title">Implementation Map</h3>
             </div>
-            <span class="plan-map__count">{{ steps.length }} Milestones</span>
+            <div class="plan-map__actions">
+                <span class="plan-map__count">{{ steps.length }} Milestones</span>
+                <button
+                    type="button"
+                    class="al-btn-copy-ai"
+                    :class="{ 'al-btn-copy-ai--copied': copied }"
+                    @click="copyMapForAi"
+                    aria-label="Copy implementation map formatted for AI assistant"
+                >
+                    <svg v-if="!copied" width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                    </svg>
+                    <svg v-else width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ copied ? 'Copied' : 'Copy for AI' }}</span>
+                </button>
+            </div>
         </div>
 
         <div class="plan-map__canvas">
@@ -60,7 +128,7 @@ const edges = computed(() => {
 
 <style scoped>
 .plan-map {
-    margin-top: var(--space-6);
+    margin-top: var(--space-8);
     min-width: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -73,9 +141,13 @@ const edges = computed(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-4) var(--space-5);
+    padding: var(--space-3) var(--space-5);
     background: var(--surface-alt);
     border-bottom: 1px solid var(--border);
+    min-height: 48px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: var(--space-3);
 }
 
 .plan-map__title-group {
@@ -100,6 +172,12 @@ const edges = computed(() => {
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text-h);
+}
+
+.plan-map__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
 }
 
 .plan-map__count {
