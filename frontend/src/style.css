@@ -363,7 +363,7 @@ pre code {
 }
 
 .focus-mode .al-mobile-header {
-  display: flex !important;
+  display: none !important;
 }
 
 .focus-mode .al-decor-element,
@@ -381,37 +381,34 @@ pre code {
 
 .focus-mode .al-app-shell {
   display: block;
-    --focus-width: 960px;
+  padding-left: 0 !important;
 }
 
 .focus-mode .al-sidebar {
   transform: translateX(-100%) !important;
 }
 
-    padding: var(--space-8) var(--space-8) var(--space-10);
-  transform: translateX(0) !important;
-}
-
 /* ── Spotlight Mode ───────────────────────────────────────────── */
-.spotlight-mode .al-workspace__panel,
-.spotlight-mode .lens-card,
-.spotlight-mode .activity-item,
+.spotlight-mode .al-lens-panel,
+.spotlight-mode .db-lens-card,
+.spotlight-mode .db-activity-item,
 .spotlight-mode .note-card,
 .spotlight-mode .al-result__section {
-  opacity: 0.65;
-  filter: contrast(92%);
+  opacity: 0.55;
+  filter: contrast(88%);
   transition: opacity 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), filter 0.25s var(--ease-out);
 }
 
-.spotlight-mode .al-workspace__panel:hover,
-.spotlight-mode .al-workspace__panel:focus-within,
-.spotlight-mode .lens-card:hover,
-.spotlight-mode .lens-card:focus-visible,
-.spotlight-mode .activity-item:hover,
-.spotlight-mode .activity-item:focus-visible,
+.spotlight-mode .al-lens-panel:hover,
+.spotlight-mode .al-lens-panel:focus-within,
+.spotlight-mode .db-lens-card:hover,
+.spotlight-mode .db-lens-card:focus-visible,
+.spotlight-mode .db-activity-item:hover,
+.spotlight-mode .db-activity-item:focus-visible,
 .spotlight-mode .note-card:hover,
 .spotlight-mode .note-card:focus-within,
-.spotlight-mode .al-result__section:hover {
+.spotlight-mode .al-result__section:hover,
+.spotlight-mode .al-result__section:focus-within {
   opacity: 1 !important;
   filter: none !important;
   box-shadow: 0 0 0 2px var(--accent), var(--shadow-lg) !important;

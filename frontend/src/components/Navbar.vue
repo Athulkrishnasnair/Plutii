@@ -99,13 +99,18 @@ function navigateToSection(hash) {
         <div class="al-mobile-actions">
             <button
                 type="button"
-                class="al-pill-btn"
-                :class="{ 'al-pill-btn--active': focusMode }"
+                class="al-focus-chip"
+                :class="{ 'al-focus-chip--active': focusMode }"
                 :aria-pressed="focusMode"
                 @click="toggleFocusMode"
-                title="Toggle focus mode"
+                :aria-label="focusMode ? 'Exit focus mode' : 'Enter focus mode'"
+                :title="focusMode ? 'Exit focus mode' : 'Enter focus mode'"
             >
-                {{ focusMode ? 'Focused' : 'Focus' }}
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/>
+                    <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+                <span>{{ focusMode ? 'Focused' : 'Focus' }}</span>
             </button>
         </div>
     </header>
@@ -372,23 +377,36 @@ function navigateToSection(hash) {
     cursor: pointer;
 }
 
-.al-pill-btn {
+.al-focus-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-family: var(--mono);
-    font-size: 0.725rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    min-height: 44px;
-    padding: 4px 12px;
+    padding: 4px 8px;
     background: var(--surface-alt);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: var(--radius-sm);
     color: var(--text-muted);
     cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.al-pill-btn--active {
-    background: var(--accent);
-    color: var(--accent-text);
+.al-focus-chip:hover {
+    color: var(--text-h);
+    border-color: var(--border-strong);
+}
+
+.al-focus-chip:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+}
+
+.al-focus-chip--active {
+    background: var(--accent-soft);
     border-color: var(--accent);
+    color: var(--accent);
 }
 
 /* ── Mobile Backdrop ──────────────────────────────────────────── */

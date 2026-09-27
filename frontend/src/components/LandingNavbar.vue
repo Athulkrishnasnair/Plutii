@@ -32,6 +32,33 @@ const mobileOpen = ref(false);
                 <li><router-link to="/docs-lens" class="l-nav__link" @click="mobileOpen = false">Docs Lens</router-link></li>
                 <li><router-link to="/plan-lens" class="l-nav__link" @click="mobileOpen = false">Plan Lens</router-link></li>
                 <li><router-link to="/codebase-lens" class="l-nav__link" @click="mobileOpen = false">Codebase Lens</router-link></li>
+                <!-- Mobile-only: theme + auth inside the drawer -->
+                <li class="l-nav__drawer-actions" aria-hidden="false">
+                    <button
+                        type="button"
+                        class="l-nav__theme l-nav__link l-nav__drawer-theme"
+                        :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                        :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                        @click="toggleTheme"
+                    >
+                        <Sun v-if="theme === 'dark'" :size="17" :stroke-width="1.8" aria-hidden="true" />
+                        <Moon v-else :size="17" :stroke-width="1.8" aria-hidden="true" />
+                        <span>{{ theme === 'dark' ? 'Light mode' : 'Dark mode' }}</span>
+                    </button>
+                    <template v-if="authed">
+                        <router-link to="/dashboard" class="l-nav__cta l-nav__drawer-cta" @click="mobileOpen = false">
+                            Dashboard
+                            <ArrowRight :size="15" :stroke-width="1.7" aria-hidden="true" />
+                        </router-link>
+                    </template>
+                    <template v-else>
+                        <router-link to="/login" class="l-nav__link" @click="mobileOpen = false">Sign in</router-link>
+                        <router-link to="/register" class="l-nav__cta l-nav__drawer-cta" @click="mobileOpen = false">
+                            Get started
+                            <ArrowRight :size="15" :stroke-width="1.7" aria-hidden="true" />
+                        </router-link>
+                    </template>
+                </li>
             </ul>
 
             <button
@@ -86,6 +113,11 @@ const mobileOpen = ref(false);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
+}
+
+/* Drawer-only items hidden on desktop */
+.l-nav__drawer-actions {
+    display: none;
 }
 
 .l-nav__inner {
@@ -235,44 +267,37 @@ const mobileOpen = ref(false);
 }
 
 @media (max-width: 640px) {
+    /* Single-row flex header — brand left, hamburger right */
     .l-nav__inner {
-        height: auto;
-        min-height: 56px;
-        padding: 8px 16px 0;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 4px 12px;
+        height: 56px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 0;
     }
 
-    .l-nav__links {
-        display: none;
-        grid-row: 3;
-        grid-column: 1 / -1;
-        width: 100%;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 4px;
-        padding: 4px 0 8px;
-    }
-
-    .l-nav__links--open {
-        display: grid;
-    }
-
-    .l-nav__links li {
+    /* Brand fills available space */
+    .l-nav__brand {
+        flex: 1;
         min-width: 0;
     }
 
+    /* Desktop actions hidden; items live in the drawer instead */
+    .l-nav__actions {
+        display: none;
+    }
+
+    /* Hamburger toggle visible */
     .l-nav__menu-toggle {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        grid-column: 2;
-        grid-row: 1;
+        flex-shrink: 0;
         width: 44px;
         height: 44px;
         padding: 0;
         color: var(--text-h);
-        background: var(--surface);
+        background: transparent;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         cursor: pointer;
@@ -288,72 +313,78 @@ const mobileOpen = ref(false);
         outline-offset: 2px;
     }
 
+    /* Drawer: hidden by default, drops below the header row */
+    .l-nav__links {
+        display: none;
+        position: absolute;
+        top: 56px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 2px;
+        padding: 8px 12px 12px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        z-index: 99;
+    }
+
+    .l-nav__links--open {
+        display: flex;
+    }
+
+    .l-nav__links li {
+        width: 100%;
+    }
+
     .l-nav__link {
         display: flex;
         align-items: center;
+        width: 100%;
         min-height: 44px;
-        padding: 8px 10px;
-        font-size: calc((12px) * var(--accessibility-text-scale, 1));
+        padding: 10px 12px;
+        font-size: calc((14px) * var(--accessibility-text-scale, 1));
         white-space: normal;
+        border-radius: var(--radius-sm);
     }
 
-    .l-nav__actions {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        gap: 6px;
-        justify-content: flex-end;
+    /* Drawer actions row: theme + sign-in + cta */
+    .l-nav__drawer-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0 0;
+        margin-top: 4px;
+        border-top: 1px solid var(--border);
+        width: 100%;
+        flex-wrap: wrap;
     }
 
-    .l-nav__theme,
-    .l-nav__signin,
-    .l-nav__cta {
-        min-height: 44px;
-    }
-
-    .l-nav__theme {
+    .l-nav__drawer-theme {
         width: 44px;
+        height: 44px;
+        min-height: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        gap: 0;
     }
 
-    .l-nav__signin {
-        font-size: calc((13px) * var(--accessibility-text-scale, 1));
+    .l-nav__drawer-theme span {
+        display: none;
     }
 
-    .l-nav__cta {
-        font-size: calc((13px) * var(--accessibility-text-scale, 1));
+    .l-nav__drawer-cta {
+        flex: 1;
+        justify-content: center;
+        min-height: 44px;
     }
 }
 
 @media (max-width: 360px) {
     .l-nav__inner {
         padding-inline: 12px;
-    }
-
-    .l-nav__brand {
-        gap: 6px;
-    }
-
-    .l-nav__brand .al-brand-lockup__wordmark {
-        font-size: 0.9rem;
-    }
-
-    .l-nav__cta {
-        gap: 4px;
-        padding-inline: 8px;
-    }
-
-    .l-nav__actions {
-        gap: 3px;
-    }
-
-    .l-nav__signin {
-        padding-inline: 5px;
-        font-size: calc((12px) * var(--accessibility-text-scale, 1));
-    }
-
-
-    .l-nav__menu-toggle {
-        width: 40px;
-        height: 40px;
     }
 }
 </style>

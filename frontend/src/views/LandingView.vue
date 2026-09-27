@@ -905,8 +905,7 @@ change.</code></pre>
 }
 
 :root[data-theme="dark"] .l-btn--primary:hover {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: #e8e8f0;
 }
 
 .l-btn__arrow {
